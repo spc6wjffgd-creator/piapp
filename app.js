@@ -4,6 +4,7 @@ const trackMeta = document.getElementById("trackMeta");
 const playPauseBtn = document.getElementById("playPauseBtn");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
+const repeatBtn = document.getElementById("repeatBtn");
 const progress = document.getElementById("progress");
 const currentTime = document.getElementById("currentTime");
 const duration = document.getElementById("duration");
@@ -16,6 +17,7 @@ let library = [];
 let allCategories = ["All"];
 let filteredPlaylist = [];
 let currentIndex = -1;
+let repeatMode = "off";
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) return "00:00";
@@ -29,6 +31,35 @@ function updateButtons() {
   playPauseBtn.disabled = !hasTracks;
   prevBtn.disabled = !hasTracks;
   nextBtn.disabled = !hasTracks;
+  repeatBtn.disabled = !hasTracks;
+}
+
+function getPlaybackQueueIndexes() {
+  const checkedIndexes = filteredPlaylist
+    .map((track, index) => (track.checked ? index : -1))
+    .filter((index) => index >= 0);
+  return checkedIndexes.length > 0 ? checkedIndexes : filteredPlaylist.map((_, index) => index);
+}
+
+function getNextIndex(step) {
+  const queue = getPlaybackQueueIndexes();
+  if (queue.length === 0) return -1;
+  const queuePos = queue.indexOf(currentIndex);
+  const currentQueuePos = queuePos >= 0 ? queuePos : 0;
+  const targetPos = currentQueuePos + step;
+
+  if (repeatMode === "all") {
+    const wrappedPos = (targetPos + queue.length) % queue.length;
+    return queue[wrappedPos];
+  }
+
+  if (targetPos < 0 || targetPos >= queue.length) return -1;
+  return queue[targetPos];
+}
+
+function updateRepeatButton() {
+  const labelMap = { off: "REP: OFF", all: "REP: ALL", one: "REP: ONE" };
+  repeatBtn.textContent = labelMap[repeatMode];
 }
 
 function renderCategories() {
@@ -53,14 +84,25 @@ function renderPlaylist() {
     const li = document.createElement("li");
     li.className = index === currentIndex ? "active" : "";
 
+    const left = document.createElement("span");
+    left.className = "track-left";
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = Boolean(track.checked);
+    checkbox.addEventListener("click", (event) => {
+      event.stopPropagation();
+      track.checked = checkbox.checked;
+    });
+
     const title = document.createElement("span");
     title.textContent = track.title;
+    left.append(checkbox, title);
 
     const category = document.createElement("span");
     category.className = "track-time";
-    category.textContent = track.category || "기타";
+    category.textContent = track.category || "Uncategorized";
 
-    li.append(title, category);
+    li.append(left, category);
     li.addEventListener("click", () => loadTrack(index, true));
     playlistEl.appendChild(li);
   });
@@ -101,26 +143,47 @@ function applyCategory() {
 }
 
 function togglePlayPause() {
-  if (!audio.src) return;
+  if (!audio.src) {
+    const queue = getPlaybackQueueIndexes();
+    if (queue.length === 0) return;
+    loadTrack(queue[0], true);
+    return;
+  }
   if (audio.paused) audio.play().catch(() => {});
   else audio.pause();
 }
 
 function goToNext() {
   if (filteredPlaylist.length === 0) return;
-  const nextIndex = (currentIndex + 1) % filteredPlaylist.length;
-  loadTrack(nextIndex, true);
+  if (repeatMode === "one" && currentIndex >= 0) {
+    loadTrack(currentIndex, true);
+    return;
+  }
+  const nextIndex = getNextIndex(1);
+  if (nextIndex >= 0) {
+    loadTrack(nextIndex, true);
+    return;
+  }
+  audio.pause();
+  audio.currentTime = 0;
+  playPauseBtn.textContent = "▶";
 }
 
 function goToPrev() {
   if (filteredPlaylist.length === 0) return;
-  const prevIndex = (currentIndex - 1 + filteredPlaylist.length) % filteredPlaylist.length;
-  loadTrack(prevIndex, true);
+  const prevIndex = getNextIndex(-1);
+  if (prevIndex >= 0) loadTrack(prevIndex, true);
 }
 
 playPauseBtn.addEventListener("click", togglePlayPause);
 nextBtn.addEventListener("click", goToNext);
 prevBtn.addEventListener("click", goToPrev);
+repeatBtn.addEventListener("click", () => {
+  if (repeatMode === "off") repeatMode = "all";
+  else if (repeatMode === "all") repeatMode = "one";
+  else repeatMode = "off";
+  updateRepeatButton();
+});
 
 progress.addEventListener("input", () => {
   if (!audio.duration) return;
@@ -174,6 +237,7 @@ function buildLibraryFromFileNames(fileNames) {
       artist: "Local Storage",
       category,
       src: `./music/${encodeURIComponent(name)}`,
+      checked: false,
     };
   });
 }
@@ -229,3 +293,4 @@ async function initLibrary() {
 }
 
 initLibrary();
+updateRepeatButton();
