@@ -15,6 +15,13 @@
         <span>음악 파일 선택</span>
         <input id="fileInput" type="file" accept="audio/*" multiple />
       </label>
+      <button id="saveToStorageBtn" class="secondary-btn" type="button">선택 파일 저장소에 업로드</button>
+
+      <section class="storage-panel">
+        <h3>내 저장소</h3>
+        <p id="storageInfo">저장된 파일: 0개 / 0.00MB</p>
+        <button id="clearStorageBtn" class="danger-btn" type="button">저장소 전체 삭제</button>
+      </section>
 
       <section class="now-playing">
         <h2 id="trackTitle">선택된 곡 없음</h2>

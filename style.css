@@ -36,13 +36,50 @@ h1 {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
   cursor: pointer;
   color: #93c5fd;
 }
 
 .file-picker input {
   color: #e5e7eb;
+}
+
+.secondary-btn,
+.danger-btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.secondary-btn {
+  background: #0ea5e9;
+  color: #fff;
+}
+
+.danger-btn {
+  background: #ef4444;
+  color: #fff;
+}
+
+.storage-panel {
+  background: #111827;
+  border: 1px solid #374151;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.storage-panel h3 {
+  margin: 0 0 6px;
+}
+
+.storage-panel p {
+  margin: 0 0 10px;
+  color: #9ca3af;
 }
 
 .now-playing {
