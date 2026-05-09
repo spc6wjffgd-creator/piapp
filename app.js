@@ -11,10 +11,9 @@ const volume = document.getElementById("volume");
 const playlistEl = document.getElementById("playlist");
 const categoryButtons = document.getElementById("categoryButtons");
 
-const library = Array.isArray(window.MUSIC_LIBRARY) ? window.MUSIC_LIBRARY : [];
-const allCategories = ["전체", ...new Set(library.map((t) => t.category || "기타"))];
-
 let activeCategory = "전체";
+let library = [];
+let allCategories = ["전체"];
 let filteredPlaylist = [];
 let currentIndex = -1;
 
@@ -150,5 +149,68 @@ audio.addEventListener("timeupdate", () => {
 audio.addEventListener("ended", goToNext);
 audio.volume = Number(volume.value);
 
-renderCategories();
-applyCategory();
+function inferCategoryAndTitleFromName(fileName) {
+  const baseName = fileName.replace(/\.[^/.]+$/, "");
+  if (baseName.includes("__")) {
+    const [rawCategory, ...titleParts] = baseName.split("__");
+    return { category: rawCategory || "기타", title: titleParts.join("__") || baseName };
+  }
+  return { category: "기타", title: baseName };
+}
+
+function buildLibraryFromFileNames(fileNames) {
+  return fileNames.map((name) => {
+    const { category, title } = inferCategoryAndTitleFromName(name);
+    return {
+      title,
+      artist: "Local Storage",
+      category,
+      src: `./music/${encodeURIComponent(name)}`,
+    };
+  });
+}
+
+async function loadLibraryFromManifest() {
+  const response = await fetch("./music/manifest.json", { cache: "no-store" });
+  if (!response.ok) throw new Error("manifest not found");
+  const manifest = await response.json();
+  const files = Array.isArray(manifest.files) ? manifest.files : [];
+  return buildLibraryFromFileNames(files);
+}
+
+async function loadLibraryFromDirectoryListing() {
+  const response = await fetch("./music/", { cache: "no-store" });
+  if (!response.ok) throw new Error("directory listing not available");
+  const html = await response.text();
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  const anchors = Array.from(doc.querySelectorAll("a"));
+  const musicFiles = anchors
+    .map((a) => decodeURIComponent((a.getAttribute("href") || "").trim()))
+    .filter((href) => /\.(mp3|wav|m4a|ogg|flac|aac)$/i.test(href))
+    .map((href) => href.replace(/^\.?\//, ""));
+  return buildLibraryFromFileNames(musicFiles);
+}
+
+async function initLibrary() {
+  try {
+    library = await loadLibraryFromManifest();
+  } catch {
+    try {
+      library = await loadLibraryFromDirectoryListing();
+    } catch {
+      library = [];
+    }
+  }
+
+  allCategories = ["전체", ...new Set(library.map((t) => t.category || "기타"))];
+  renderCategories();
+  applyCategory();
+
+  if (library.length === 0) {
+    trackTitle.textContent = "음악 파일 없음";
+    trackMeta.textContent = "music 폴더에 음원을 넣으면 자동으로 목록에 표시됩니다.";
+  }
+}
+
+initLibrary();
