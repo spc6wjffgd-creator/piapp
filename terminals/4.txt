@@ -1,0 +1,19 @@
+---
+pid: 99371
+cwd: /Users/heeairm2
+last_command: git commit -m "first commit"
+last_exit_code: 1
+---
+heeairm2@heeairm2s-MacBook-Air-2 ~ % git init
+xcode-select: note: No developer tools were found, requesting install.
+If developer tools are located at a non-default location on disk, use `sudo xcode-select --switch path/to/Xcode.app` to specify the Xcode that you wish to use for command line developer tools, and cancel the installation dialog.
+See `man xcode-select` for more details.
+heeairm2@heeairm2s-MacBook-Air-2 ~ % git add .
+xcode-select: note: No developer tools were found, requesting install.
+If developer tools are located at a non-default location on disk, use `sudo xcode-select --switch path/to/Xcode.app` to specify the Xcode that you wish to use for command line developer tools, and cancel the installation dialog.
+See `man xcode-select` for more details.
+heeairm2@heeairm2s-MacBook-Air-2 ~ % git commit -m "first commit"
+xcode-select: note: No developer tools were found, requesting install.
+If developer tools are located at a non-default location on disk, use `sudo xcode-select --switch path/to/Xcode.app` to specify the Xcode that you wish to use for command line developer tools, and cancel the installation dialog.
+See `man xcode-select` for more details.
+heeairm2@heeairm2s-MacBook-Air-2 ~ %
