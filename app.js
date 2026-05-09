@@ -11,9 +11,9 @@ const volume = document.getElementById("volume");
 const playlistEl = document.getElementById("playlist");
 const categoryButtons = document.getElementById("categoryButtons");
 
-let activeCategory = "전체";
+let activeCategory = "All";
 let library = [];
-let allCategories = ["전체"];
+let allCategories = ["All"];
 let filteredPlaylist = [];
 let currentIndex = -1;
 
@@ -68,7 +68,7 @@ function renderPlaylist() {
 
 function setTrackInfo(track) {
   trackTitle.textContent = track.title;
-  trackMeta.textContent = `${track.artist || "Unknown"} / ${track.category || "기타"}`;
+  trackMeta.textContent = `${track.artist || "Unknown"} / ${track.category || "Uncategorized"}`;
 }
 
 function loadTrack(index, autoPlay = false) {
@@ -84,7 +84,9 @@ function loadTrack(index, autoPlay = false) {
 
 function applyCategory() {
   filteredPlaylist =
-    activeCategory === "전체" ? [...library] : library.filter((track) => (track.category || "기타") === activeCategory);
+    activeCategory === "All"
+      ? [...library]
+      : library.filter((track) => (track.category || "Uncategorized") === activeCategory);
   currentIndex = -1;
   audio.pause();
   audio.removeAttribute("src");
@@ -92,8 +94,8 @@ function applyCategory() {
   currentTime.textContent = "00:00";
   duration.textContent = "00:00";
   progress.value = "0";
-  trackTitle.textContent = "선택된 곡 없음";
-  trackMeta.textContent = "카테고리에서 곡을 선택해주세요.";
+  trackTitle.textContent = "No track selected";
+  trackMeta.textContent = "Choose a track from the list.";
   renderPlaylist();
   updateButtons();
 }
@@ -150,8 +152,8 @@ audio.addEventListener("ended", goToNext);
 audio.addEventListener("error", () => {
   const current = filteredPlaylist[currentIndex];
   trackMeta.textContent = current
-    ? `재생 실패: ${current.title} 파일을 확인해주세요. (지원 포맷/경로 오류)`
-    : "재생 실패: 파일 경로 또는 포맷을 확인해주세요.";
+    ? `Playback failed: ${current.title}. Check file format or path.`
+    : "Playback failed: check file path or format.";
 });
 audio.volume = Number(volume.value);
 
@@ -159,9 +161,9 @@ function inferCategoryAndTitleFromName(fileName) {
   const baseName = fileName.replace(/\.[^/.]+$/, "");
   if (baseName.includes("__")) {
     const [rawCategory, ...titleParts] = baseName.split("__");
-    return { category: rawCategory || "기타", title: titleParts.join("__") || baseName };
+    return { category: rawCategory || "Uncategorized", title: titleParts.join("__") || baseName };
   }
-  return { category: "기타", title: baseName };
+  return { category: "Uncategorized", title: baseName };
 }
 
 function buildLibraryFromFileNames(fileNames) {
@@ -171,7 +173,7 @@ function buildLibraryFromFileNames(fileNames) {
       title,
       artist: "Local Storage",
       category,
-      src: `./music/${name}`,
+      src: `./music/${encodeURIComponent(name)}`,
     };
   });
 }
@@ -199,23 +201,30 @@ async function loadLibraryFromDirectoryListing() {
 }
 
 async function initLibrary() {
+  let manifestLibrary = [];
+  let directoryLibrary = [];
   try {
-    library = await loadLibraryFromManifest();
-  } catch {
-    try {
-      library = await loadLibraryFromDirectoryListing();
-    } catch {
-      library = [];
-    }
-  }
+    manifestLibrary = await loadLibraryFromManifest();
+  } catch {}
+  try {
+    directoryLibrary = await loadLibraryFromDirectoryListing();
+  } catch {}
 
-  allCategories = ["전체", ...new Set(library.map((t) => t.category || "기타"))];
+  const merged = [...manifestLibrary, ...directoryLibrary];
+  const seen = new Set();
+  library = merged.filter((track) => {
+    if (seen.has(track.src)) return false;
+    seen.add(track.src);
+    return true;
+  });
+
+  allCategories = ["All", ...new Set(library.map((t) => t.category || "Uncategorized"))];
   renderCategories();
   applyCategory();
 
   if (library.length === 0) {
-    trackTitle.textContent = "음악 파일 없음";
-    trackMeta.textContent = "music 폴더에 음원을 넣으면 자동으로 목록에 표시됩니다.";
+    trackTitle.textContent = "No music files found";
+    trackMeta.textContent = "Add audio files into the music folder and refresh.";
   }
 }
 
