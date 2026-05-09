@@ -147,6 +147,12 @@ audio.addEventListener("timeupdate", () => {
 });
 
 audio.addEventListener("ended", goToNext);
+audio.addEventListener("error", () => {
+  const current = filteredPlaylist[currentIndex];
+  trackMeta.textContent = current
+    ? `재생 실패: ${current.title} 파일을 확인해주세요. (지원 포맷/경로 오류)`
+    : "재생 실패: 파일 경로 또는 포맷을 확인해주세요.";
+});
 audio.volume = Number(volume.value);
 
 function inferCategoryAndTitleFromName(fileName) {
@@ -165,7 +171,7 @@ function buildLibraryFromFileNames(fileNames) {
       title,
       artist: "Local Storage",
       category,
-      src: `./music/${encodeURIComponent(name)}`,
+      src: `./music/${name}`,
     };
   });
 }

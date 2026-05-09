@@ -59,7 +59,6 @@ body {
   letter-spacing: 0.04em;
 }
 
-.storage-box,
 .category-box,
 .display-panel,
 .playlist-wrap {
@@ -70,15 +69,9 @@ body {
   margin-bottom: 14px;
 }
 
-.storage-box h2,
 .category-box h3,
 .playlist-wrap h3 {
   margin: 0 0 8px;
-}
-
-.storage-box p {
-  margin: 4px 0;
-  color: #ccb08a;
 }
 
 .categories {
