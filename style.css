@@ -4,120 +4,122 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(135deg, #111827, #1f2937);
-  color: #f9fafb;
+  font-family: "Arial", sans-serif;
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: 20px;
-}
-
-.player {
-  width: min(680px, 100%);
-  background: rgba(31, 41, 55, 0.9);
-  border: 1px solid #374151;
-  border-radius: 16px;
+  background: radial-gradient(circle at center, #2a2521 0%, #13100e 65%);
+  color: #f7f1e3;
   padding: 24px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
 }
 
-h1 {
-  margin: 0 0 8px;
-  font-size: 1.5rem;
+.speaker {
+  width: min(820px, 100%);
+  background: #1a1714;
+  border: 10px solid #8a6a42;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 25px 55px rgba(0, 0, 0, 0.55), inset 0 0 0 2px rgba(255, 231, 183, 0.12);
+  position: relative;
+}
+
+.speaker::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 220, 160, 0.25);
+  pointer-events: none;
+}
+
+.speaker-top h1 {
+  margin: 0;
+  font-size: 1.7rem;
+  letter-spacing: 0.04em;
 }
 
 .hint {
-  margin: 0 0 18px;
-  color: #cbd5e1;
+  margin: 8px 0 16px;
+  color: #d8c5a5;
 }
 
-.file-picker {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  color: #93c5fd;
+.storage-box,
+.category-box,
+.display-panel,
+.playlist-wrap {
+  background: #0f0d0c;
+  border: 1px solid #6f5638;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
 }
 
-.file-picker input {
-  color: #e5e7eb;
+.storage-box h2,
+.category-box h3,
+.playlist-wrap h3 {
+  margin: 0 0 8px;
 }
 
-.secondary-btn,
-.danger-btn {
-  border: 0;
-  border-radius: 10px;
-  padding: 10px 14px;
+.storage-box p {
+  margin: 4px 0;
+  color: #ccb08a;
+}
+
+.storage-tip {
+  font-size: 0.92rem;
+}
+
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.categories button {
+  border: 1px solid #b68f5a;
+  border-radius: 999px;
+  background: transparent;
+  color: #f7e7c7;
+  padding: 8px 14px;
   cursor: pointer;
   font-weight: 600;
-  margin-bottom: 14px;
 }
 
-.secondary-btn {
-  background: #0ea5e9;
-  color: #fff;
+.categories button.active {
+  background: #b68f5a;
+  color: #221a14;
 }
 
-.danger-btn {
-  background: #ef4444;
-  color: #fff;
-}
-
-.storage-panel {
-  background: #111827;
-  border: 1px solid #374151;
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 14px;
-}
-
-.storage-panel h3 {
+.display-panel h2 {
   margin: 0 0 6px;
+  font-size: 1.15rem;
 }
 
-.storage-panel p {
-  margin: 0 0 10px;
-  color: #9ca3af;
-}
-
-.now-playing {
-  background: #111827;
-  border: 1px solid #374151;
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 14px;
-}
-
-.now-playing h2 {
-  margin: 0 0 6px;
-  font-size: 1.1rem;
-}
-
-.now-playing p {
+.display-panel p {
   margin: 0;
-  color: #9ca3af;
+  color: #ccb08a;
 }
 
 .controls {
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   margin-bottom: 14px;
 }
 
 .controls button {
-  border: 0;
-  border-radius: 10px;
-  padding: 10px 14px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #b68f5a;
+  background: #2b211a;
+  color: #f7e7c7;
+  font-size: 1.1rem;
   cursor: pointer;
-  font-weight: 600;
-  background: #2563eb;
-  color: #fff;
 }
 
 .controls button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -127,52 +129,47 @@ h1 {
   align-items: center;
   gap: 10px;
   margin-bottom: 14px;
-  font-size: 0.85rem;
-  color: #cbd5e1;
+  color: #ccb08a;
+  font-size: 0.86rem;
 }
 
-.timeline input {
-  width: 100%;
-}
-
-.volume-wrap {
+.knobs {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 14px;
+  color: #ccb08a;
 }
 
-.volume-wrap input {
-  width: 200px;
-}
-
-.playlist-wrap h3 {
-  margin: 0 0 8px;
+#volume {
+  width: 220px;
 }
 
 #playlist {
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid #374151;
+  border-top: 1px solid #6f5638;
+  max-height: 240px;
+  overflow: auto;
 }
 
 #playlist li {
+  padding: 9px 4px;
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 4px;
-  border-bottom: 1px solid #374151;
+  gap: 10px;
+  border-bottom: 1px solid #6f5638;
+  color: #ead8bd;
   cursor: pointer;
-  color: #e5e7eb;
 }
 
 #playlist li.active {
-  color: #60a5fa;
-  font-weight: 700;
+  background: rgba(182, 143, 90, 0.2);
+  color: #ffe7be;
 }
 
 .track-time {
-  color: #94a3b8;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
+  color: #c7a879;
 }
